@@ -4,6 +4,7 @@ import { DragDropContext} from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
 
 import Column from '../Column/Column.tsx'
+import TaskModal from '../TaskModal/TaskModal'
 
 
 const Board = () => {
@@ -12,7 +13,7 @@ const Board = () => {
           id: "todo",
           title: "To do",
           list: [
-            { id: uuidv4(), text: "text1" },
+            { id: uuidv4(), title: "text1 title", text: "text1" },
             { id: uuidv4(), text: "text2" },
             { id: uuidv4(), text: "text3" }
           ]
@@ -38,15 +39,15 @@ const Board = () => {
         },
       };
 
-const [columns, setColumns] = useState([])
+const [columns, setColumns] = useState({})
 
   useEffect(() => {
-    setValues(initialColumns);
+    setValues();
   },[])
 
-const setValues = (intialColumns) => {
-  console.log(columns)
-  setColumns(initialColumns)
+const setValues = () => {
+  const data = initialColumns
+  setColumns(data)
 }
 const onDragEnd = ({ source, destination }) => {
     if (destination === undefined || destination === null) return null;
@@ -104,6 +105,31 @@ const onDragEnd = ({ source, destination }) => {
     }
   };
 
+const addTaskToColumn = (column) => {
+    // New item inserted into list array
+    let newObject = {
+        id: uuidv4(),
+        title: "Test title",
+        text: "Test text",
+    }
+    console.log(column)
+
+    /*
+    console.log(column) result:
+    Object: {
+        id:"todo",
+        title:"To do",
+        list: [{etc}{etc}]
+    }
+    */
+    setColumns(prev => ({
+        ...prev,
+        [column.id]: {
+          ...prev[column.id],
+          list: [...prev[column.id].list, newObject]
+        }
+      }));
+}
   return (
     <div style={{ display: 'flex', justifyContent: 'center', height: '100%' }}>
       <DragDropContext onDragEnd={onDragEnd}>
@@ -114,11 +140,12 @@ const onDragEnd = ({ source, destination }) => {
                 flexDirection: "column",
                 alignItems: "center"
               }}>
-              <Column column={column} key={column.id} />
+              <Column column={column} key={column.id} add={addTaskToColumn}/>
             </div>
           )
         })}
-      </DragDropContext>
+      </DragDropContext> 
+      {console.log(columns)}
     </div>
   )
 }
