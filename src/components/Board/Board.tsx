@@ -122,11 +122,13 @@ const addTaskToColumn = (column) => {
         list: [{etc}{etc}]
     }
     */
-    setColumns({...columns, column: {
-        id: column.id,
-        title: column.title,
-        list: [...column.list, column.list.push(newObject)]
-    }})
+    setColumns(prev => ({
+        ...prev,
+        [column.id]: {
+          ...prev[column.id],
+          list: [...prev[column.id].list, newObject]
+        }
+      }));
 }
   return (
     <div style={{ display: 'flex', justifyContent: 'center', height: '100%' }}>
