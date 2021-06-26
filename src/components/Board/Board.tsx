@@ -1,135 +1,125 @@
 //@ts-nocheck
 import React, { useState } from 'react'
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { v4 as uuidv4 } from 'uuid';
+import { DragDropContext} from 'react-beautiful-dnd'
+import { v4 as uuidv4 } from 'uuid'
 
-const backendItems = [
-    { id: uuidv4(), content: "Task" },
-    { id: uuidv4(), content: "Tesk" },
-]
+import Column from '../Column/Column.tsx'
 
-const backendColumns = {
-    [uuidv4()]: {
-        name: "Backlog",
-        items: backendItems
-    },
-    [uuidv4()]: {
-        name: "Work In Progress",
-        items: []
-    },
-    [uuidv4()]: {
-        name: "In Review",
-        items: []
-    },
-    [uuidv4()]: {
-        name: "Completed",
-        items: [],
-    },
-    [uuidv4()]: {
-        name: "On hold",
-        items: [],
-    }
-}
-const onDragEnd = (result, columns, setColumns) => {
-    if (!result.destination) return;
-    const { source, destination } = result;
-  
-    if (source.droppableId !== destination.droppableId) {
-      const sourceColumn = columns[source.droppableId];
-      const destColumn = columns[destination.droppableId];
-      const sourceItems = [...sourceColumn.items];
-      const destItems = [...destColumn.items];
-      const [removed] = sourceItems.splice(source.index, 1);
-      destItems.splice(destination.index, 0, removed);
-      setColumns({
-        ...columns,
-        [source.droppableId]: {
-          ...sourceColumn,
-          items: sourceItems
+
+const Board = () => {
+
+
+    const initialColumns = {
+        todo: {
+          id: "todo",
+          list: [
+            { id: uuidv4(), text: "text1" },
+            { id: uuidv4(), text: "text2" },
+            { id: uuidv4(), text: "text3" }
+          ]
         },
-        [destination.droppableId]: {
-          ...destColumn,
-          items: destItems
-        }
-      });
+        inprogress: {
+          id: "inprogress",
+          list: [
+            { id: uuidv4(), text: "text4" },
+            { id: uuidv4(), text: "text5" },
+            { id: uuidv4(), text: "text6" }
+          ]
+        },
+        completed: {
+          id: "completed",
+          list: []
+        },
+        onhold: {
+            id: "onhold",
+            list:[]
+        },
+      };
+
+const [columns, setColumns] = useState(initialColumns)
+
+
+const onDragEnd = ({ source, destination }) => {
+    // Make sure we have a valid destination
+    if (destination === undefined || destination === null) return null;
+
+    // Make sure we're actually moving the item
+    if (
+      source.droppableId === destination.droppableId &&
+      destination.index === source.index
+    )
+      return null;
+
+    // Set start and end variables
+    const start = columns[source.droppableId];
+    const end = columns[destination.droppableId];
+
+    // If start is the same as end, we're in the same column
+    if (start === end) {
+      // Move the item within the list
+      // Start by making a new list without the dragged item
+      console.log(start);
+      const newList = start.list.filter((_, idx) => idx !== source.index);
+
+      // Then insert the item at the right location
+      newList.splice(destination.index, 0, start.list[source.index]);
+
+      // Then create a new copy of the column object
+      const newCol = {
+        id: start.id,
+        list: newList
+      };
+
+      // Update the state
+      setColumns((state) => ({ ...state, [newCol.id]: newCol }));
+      return null;
     } else {
-      const column = columns[source.droppableId];
-      const copiedItems = [...column.items];
-      const [removed] = copiedItems.splice(source.index, 1);
-      copiedItems.splice(destination.index, 0, removed);
-      setColumns({
-        ...columns,
-        [source.droppableId]: {
-          ...column,
-          items: copiedItems
-        }
-      });
+      // If start is different from end, we need to update multiple columns
+      // Filter the start list like before
+      const newStartList = start.list.filter((_, idx) => idx !== source.index);
+
+      // Create a new start column
+      const newStartCol = {
+        id: start.id,
+        list: newStartList
+      };
+
+      // Make a new end list array
+      const newEndList = end.list;
+
+      // Insert the item into the end list
+      newEndList.splice(destination.index, 0, start.list[source.index]);
+
+      // Create a new end column
+      const newEndCol = {
+        id: end.id,
+        list: newEndList
+      };
+
+      // Update the state
+      setColumns((state) => ({
+        ...state,
+        [newStartCol.id]: newStartCol,
+        [newEndCol.id]: newEndCol
+      }));
+      return null;
     }
   };
-function Board() {
-    const [columns, setColumns] = useState(backendColumns);
-    return (
-        <div style={{ display: "flex", justifyContent: "center", height: '100%' }}>
-            Board
-            <DragDropContext
-                onDragEnd={result => onDragEnd(result, columns, setColumns)}
-            >
-                {Object.entries(columns).map(([id, column]) => {
-                    return (
-                        <div>
-                        <h2>{column.name}</h2>
-                        <Droppable droppableId={id} key={id}>
-                            {(provided, snapshot) => {
-                                return (
-                                    <div
-                                        {...provided.droppableProps}
-                                        ref={provided.innerRef}
-                                        style={{
-                                            background: snapshot.isDraggingOver ? 'lightblue' : 'lightgrey',
-                                            padding: 4,
-                                            width: 250,
-                                            minHeight: 500
-                                        }}
-                                    >
-                                       {column.items.map((item, index) => {
-                                           return(
-                                               <Draggable key={item.id} draggableId={item.id} index={index}>
-                                                   {(provided, snapshot) => {
-                                                       return(
-                                                           <div
-                                                            ref={provided.innerRef}
-                                                            {...provided.draggableProps}
-                                                            {...provided.dragHandleProps}
-                                                            style={{
-                                                                userSelect: 'none',
-                                                                padding: 16,
-                                                                margin: '0 0 8px 9',
-                                                                minHeight: '50px',
-                                                                backgroundColor: snapshot.isDragging
-                                                                ? "#263B4A"
-                                                                : "#456C86",
-                                                                color: "white",
-                                                                ...provided.draggableProps.style
-                                                            }}>
-                                                            {item.content}
-                                                           </div>
-                                                       )
-                                                   }}
-                                               </Draggable>
-                                           )
-                                       })}
-                                       {provided.placeholder}
-                                    </div>
-                                )
-                            }}
-                        </Droppable>
-                        </div>
-                    )
-                })}
 
-            </DragDropContext>
-        </div>
-    )
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', height: '100%' }}>
+      <DragDropContext onDragEnd={onDragEnd}>
+        {Object.values(columns).map((column) => {
+          console.log(column)
+          return (
+            <div>
+              <Column column={column} key={column.id} />
+            </div>
+          )
+        })}
+      </DragDropContext>
+    </div>
+  )
 }
 
 export default Board
