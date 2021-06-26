@@ -2,22 +2,28 @@
 import React from 'react'
 import { Droppable } from 'react-beautiful-dnd'
 import ListItemCustom from '../ListItemCustom/ListItemCustom'
+import './Column.css'
+
+import { Divider } from '@chakra-ui/layout'
 
 const Column = ({ column }: any) => {
   return (
     <div
 
     >
-      <div>{column.id}</div>  
+      <div>{column.title}</div>  
+      <Divider/>
       <Droppable droppableId={column.id}>
         {(provided) => (
-          <div ref={provided.innerRef}       style={{
-            backgroundColor: 'gray',
+          <div className="column"
+          ref={provided.innerRef}       
+          style={{
+            backgroundColor: '#EBEDF3',
             margin: 10,
             padding: 20,
             color: 'white',
-            minHeight: 400,
-            width: 250,
+            minHeight: '70vh',
+            width: "20vw",
           }}>
             <div>
               {column.list.map((itemObject, index) => {
