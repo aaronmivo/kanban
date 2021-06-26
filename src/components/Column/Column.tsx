@@ -2,16 +2,20 @@
 import React from 'react'
 import { Droppable } from 'react-beautiful-dnd'
 import ListItemCustom from '../ListItemCustom/ListItemCustom'
+import TaskModal from '../TaskModal/TaskModal';
 import './Column.css'
 
 import { Divider } from '@chakra-ui/layout'
 
-const Column = ({ column }: any) => {
+const Column = ({ column, add }: any) => {
+
   return (
     <div
 
     >
-      <div>{column.title}</div>  
+      <div>{column.title}</div>
+      <TaskModal title={column.title}/>
+      <button onClick={() => add(column)}>Add</button>
       <Divider/>
       <Droppable droppableId={column.id}>
         {(provided) => (

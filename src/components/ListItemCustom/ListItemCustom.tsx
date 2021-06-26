@@ -22,6 +22,7 @@ const ListItemCustom = ({ itemObject, index }: any) => {
             ...provided.draggableProps.style,
           }}
         >
+          {itemObject.title}
           {itemObject.text}
         </div>
       )}
