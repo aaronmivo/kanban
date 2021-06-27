@@ -4,8 +4,6 @@ import { DragDropContext} from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
 
 import Column from '../Column/Column.tsx'
-import TaskModal from '../TaskModal/TaskModal'
-
 
 const Board = () => {
     const initialColumns = {
@@ -105,26 +103,15 @@ const onDragEnd = ({ source, destination }) => {
     }
   };
 
-const addTaskToColumn = (column) => {
+const add = (column, task) => {
     // New item inserted into list array
     let newObject = {
         id: uuidv4(),
-        title: "Test title",
-        text: "Test text",
+        title: task.title,
+        text: task.text,
     }
-    console.log(column)
 
-    /*
-    console.log(column) result:
-    Object: {
-        id:"todo",
-        title:"To do",
-        list: [{etc}{etc}]
-    }
-    */
-    setColumns(prev => ({
-        ...prev,
-        [column.id]: {
+    setColumns(prev => ({...prev, [column.id]: {
           ...prev[column.id],
           list: [...prev[column.id].list, newObject]
         }
@@ -140,7 +127,7 @@ const addTaskToColumn = (column) => {
                 flexDirection: "column",
                 alignItems: "center"
               }}>
-              <Column column={column} key={column.id} add={addTaskToColumn}/>
+              <Column column={column} key={column.id} add={add}/>
             </div>
           )
         })}
