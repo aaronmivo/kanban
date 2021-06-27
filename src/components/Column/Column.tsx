@@ -13,9 +13,9 @@ const Column = ({ column, add }: any) => {
     <div
 
     >
+      
       <div>{column.title}</div>
-      <TaskModal title={column.title}/>
-      <button onClick={() => add(column)}>Add</button>
+      <TaskModal title={column.title} add={add} column={column}/> 
       <Divider/>
       <Droppable droppableId={column.id}>
         {(provided) => (
